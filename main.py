@@ -6,9 +6,12 @@ import importlib
 from openpyxl import Workbook
 
 import history
+import yaml
+
 import string
 import maze_agent
 import agent_protos
+import itertools
 
 import logging
 import argparse
@@ -19,7 +22,8 @@ from typing import List, Dict, Set
 import numpy as np
 
 sys.path.append("../MazeWorld")
-
+wb = Workbook()
+ws = wb.active
 episode = 0
 
 def traverse_environment(env: gym.Env
@@ -28,10 +32,7 @@ def traverse_environment(env: gym.Env
                          , logger: logging.Logger
                          , except_list: Set[int] = set()
                          , max_nb_steps: int = 20
-                         , max_nb_consective_nothings: int = 10
-                         , ws = None
-                         , target_location: np.array = None
-                         , agent_location: np.array = None
+                         , max_nb_consective_nothings: int = 15
                          ) -> Set[int]:
     #  function traverse_environment {{{ #
     """
@@ -62,7 +63,7 @@ def traverse_environment(env: gym.Env
             continue
 
         model.reset()
-        observations: List[str] = [env.reset(target_location=target_location, agent_location=agent_location)]
+        observation: str = env.reset()
         task: str = env.get_instruction_text()
         available_actions: List[str] = env.get_available_actions()
 
@@ -70,55 +71,39 @@ def traverse_environment(env: gym.Env
         nb_nothing_steps = 0
         nb_consecutive_nothings = 0
 
+        reward = 0.
         total_reward = 0.
         succeeds = False
-        action_run, reward_run = [], []
         while nb_steps < max_nb_steps and nb_consecutive_nothings < max_nb_consective_nothings:
-            actions: List[str] = model(task
-                                , observations
-                                , reward_run
+            action: str = model(task
+                                , observation
+                                , reward
                                 , total_reward
                                 , available_actions
-                                , action_run
                                 )
-            if len(actions) > 0:
-                done = False
-                action_run, observations, reward_run = [], [], []
-                for action in actions:
-                    if action == 'None':
-                        continue
-                    observation, reward, done, _ = env.step(action)
-                    # print("main = ", action, observation, reward, done)
-                    total_reward += reward
-                    available_actions = env.get_available_actions()
+            if action != "NOTHING":
+                observation, reward, done, _ = env.step(action)
+                total_reward += reward
+                available_actions = env.get_available_actions()
 
-                    action_run.append(action)
-                    observations.append(observation)
-                    reward_run.append(reward)
-
-                    nb_steps += 1
-                    nb_consecutive_nothings = 0
-                    if done:
-                        succeeds = reward > 0.
-                        break
+                nb_steps += 1
+                nb_consecutive_nothings = 0
                 if done:
+                    succeeds = reward > 0.
                     break
             else:
                 nb_nothing_steps += 1
                 nb_consecutive_nothings += 1
 
         model.end(task
-                  , observations
-                  , reward_run
+                  , observation
+                  , reward
                   , total_reward
                   , available_actions
-                  , action_run
                   )
 
         if succeeds:
             success_list.add(i)
-        else:
-            model.set_epsilon(0.3)
 
         nb_stepss.append(nb_steps)
         rewards.append(total_reward)
@@ -141,30 +126,17 @@ def traverse_environment(env: gym.Env
     #  }}} function traverse_environment #
 
 
-def clear_output_files(dir):
-    os.makedirs(dir)
-    with open(os.path.join(dir, 'agent.txt'), 'w') as f:
+def clear_output_files():
+    with open('logs/agent.txt', 'w') as f:
         f.write('')
-    with open(os.path.join(dir, 'his.txt'), 'w') as f:
+    with open('logs/his.txt', 'w') as f:
         f.write('')
-    with open(os.path.join(dir, 'prompt.txt'), 'w') as f:
+    with open('logs/prompt.txt', 'w') as f:
         f.write('')
 
-def main(
-    env: gym.Env = None, 
-    target_location: np.array = None, 
-    agent_location: np.array = None, 
-    wb = None, 
-    yaml_file_names: List[str] = None
-):
-    global episode
-    episode = 1
-    ws = wb.active
-    ws.append([str(agent_location), str(target_location)])
-    folder_names = [item for item in os.listdir('logs') if os.path.isdir(os.path.join('logs', item))]
-    ids = 1 if not folder_names else max([int(item) for item in folder_names]) + 1
-    clear_output_files(dir=f'logs/{ids}')
 
+def main():
+    clear_output_files()
     #  Command Line Options {{{ #
     parser = argparse.ArgumentParser()
 
@@ -192,7 +164,7 @@ def main(
                         )
 
     # Replay Options
-    parser.add_argument("--load-replay", default='history_pools/init_pool_5_CL.yaml', action="append", type=str)
+    parser.add_argument("--load-replay", default='history_pools/init_pool_5.yaml', action="append", type=str)
     parser.add_argument("--save-replay", default='history_pools/train_pool.yaml', action="append", type=str)
     parser.add_argument("--item-capacity", type=int)
     parser.add_argument("--action-capacity", type=int)
@@ -204,11 +176,11 @@ def main(
     parser.add_argument("--step-penalty", default=0., type=float)
     parser.add_argument("--update-mode", default="mean", type=str, choices=["mean", "const"])
     parser.add_argument("--learning-rate", default=0.1, type=float)
-    parser.add_argument("--n-step-flatten", default=3, type=int)
+    parser.add_argument("--n-step-flatten", default=1, type=int)
     parser.add_argument("--iteration-mode", default="turn", type=str, choices=["turn", "random"])
 
     # Agent Options
-    parser.add_argument("--prompt-template", default=r"prompts", type=str)
+    parser.add_argument("--prompt-template", default=r"./prompts", type=str)
     parser.add_argument("--max-tokens", default=20, type=int)
     parser.add_argument("--temperature", default=0.1, type=float)
     parser.add_argument("--stop", type=str)
@@ -219,12 +191,12 @@ def main(
     parser.add_argument("--norandom", action="store_true")
 
     parser.add_argument("--starts-from", default=0, type=int)
-    parser.add_argument("--epochs", default=2, type=int)
+    parser.add_argument("--epochs", default=5, type=int)
 
     parser.add_argument("--except", nargs="+", type=int)
     parser.add_argument("--pub-to-local-mapping", type=str)
     parser.add_argument("--trainseta", default=0, type=int)
-    parser.add_argument("--trainsetb", default=5, type=int)
+    parser.add_argument("--trainsetb", default=20, type=int)
     parser.add_argument("--testseta", default=0, type=int)
     parser.add_argument("--testsetb", default=10, type=int)
 
@@ -257,6 +229,10 @@ def main(
     sdebug_handler.setFormatter(formatter)
     odebug_handler.setFormatter(formatter)
 
+    stdout_handler.addFilter(logging.Filter("webshop"))
+    sdebug_handler.addFilter(logging.Filter("webshop"))
+    odebug_handler.addFilter(logging.Filter("openaiE"))
+
     logger.addHandler(file_handler)
     logger.addHandler(debug_handler)
     logger.addHandler(stdout_handler)
@@ -265,13 +241,6 @@ def main(
 
     logger = logging.getLogger("webshop")
     #  }}} Config Logger #
-
-    if env is None:
-        origin_path = os.path.dirname(os.path.abspath(__file__))
-        env = gym.make("MazeWorld-v0", running_path=origin_path)
-
-    logger.info("The environment is ready.")
-    #  }}} Build Agent and Environment #
 
     #  Build Agent and Environment {{{ #
     # sentence_transformer = SentenceTransformer(args.sentence_transformer)
@@ -290,11 +259,8 @@ def main(
                                 , n_step_flatten=args.n_step_flatten
                                 )
     history_replay.load_yaml(args.load_replay)
-    if yaml_file_names is not None:
-        for yaml_file_name in yaml_file_names:
-            history_replay.load_yaml(yaml_file_name)
 
-    with open(os.path.join(args.prompt_template, "prompt_pthw_v2.txt")) as f:
+    with open(os.path.join(args.prompt_template, "prompt_pthw.txt")) as f:
         prompt_template = string.Template(f.read())
     with open(os.path.join(args.prompt_template, "input_template_w.txt")) as f:
         input_template = string.Template(f.read())
@@ -324,6 +290,11 @@ def main(
                                  )
     # model = maze_agent.ManualAgent(args.observation_mode)
 
+    env = gym.make("MazeWorld-v0")
+
+    logger.info("The environment is ready.")
+    #  }}} Build Agent and Environment #
+
     #  Workflow {{{ #
     if args.pub_to_local_mapping is None:
         local_mapping: List[int] = list(range(600))
@@ -334,6 +305,7 @@ def main(
                                                 )
                                             )
     training_set: List[int] = local_mapping[500 + args.trainseta:500 + args.trainsetb]
+    test_set: List[int] = local_mapping[args.testseta:args.testsetb]
 
     except_list: Set[int] = set() if getattr(args, "except") is None else set(getattr(args, "except"))
 
@@ -343,30 +315,32 @@ def main(
     else:
         starts_from: int = args.starts_from
         nb_epochs: int = args.epochs
+    max_nb_steps = 15
     for epch in range(starts_from, nb_epochs):
         if args.train:
             model.train(True)
             success_list: Set[int] = traverse_environment(env, training_set
                                                           , model
                                                           , logger, except_list
-                                                          , ws=ws
-                                                          , target_location = target_location
-                                                          , agent_location = agent_location
+                                                          , max_nb_steps=max_nb_steps
                                                           )
             if epch == 0:
                 except_list |= success_list
         model.train(False)
         # traverse_environment(env, test_set
         #                      , model, logger
+        #                      , max_nb_steps=max_nb_steps
         #                      )
 
         if args.train:
-            history_replay.save_yaml(f'history_pools/train{epch}_{str(agent_location)}.yaml')
+            history_replay.save_yaml(f'history_pools/train{epch}.yaml')
 
         epoch_str = "Epoch {:}".format(epch)
         logger.info("\x1b[31m━━━━━━━━━━━━━━━━━━━%s━━━━━━━━━━━━━━━━━━━━\x1b[0m", epoch_str)
         logger.info("\x1b[31m━━━━━━━━━━━━━━━━━━━%s━━━━━━━━━━━━━━━━━━━━\x1b[0m", "━" * len(epoch_str))
     #  }}} Workflow #
 
+
 if __name__ == "__main__":
     main()
+    wb.save("LLM.xlsx")

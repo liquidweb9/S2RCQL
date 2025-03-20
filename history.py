@@ -10,7 +10,6 @@ import collections
 import itertools
 import yaml
 import copy
-import json
 
 import logging
 
@@ -20,8 +19,6 @@ hlogger = logging.getLogger("history")
 Key = TypeVar("Key", bound=Hashable)
 Action = TypeVar("Action", bound=Hashable)
 
-with open('graph.json', 'r') as f:
-    name_to_location = json.loads(f.read())
 
 class Matcher(abc.ABC, Generic[Key]):
     #  class Matcher {{{ #
@@ -48,26 +45,26 @@ class NoneMatcher(Matcher[Tuple[str, Any]]):
         #  }}} method __init__ #
 
     def __call__(self, key: Tuple[str, ...]) -> float:
-        # obs1, obs2 = self._query[0].split('\n')[-1], key[0].split('\n')[-1]
-        # # obs1, obs2 = self._query[0], key[0]
-        # size1, size2 = self._get_num(self._query[1])[0], self._get_num(key[1])[0]
-        # # print(obs1, obs2, size1, size2)
-        # # obs1, obs2 = self._get_num(obs1), self._get_num(obs2)
-        # obs1, obs2 = self._get_location(obs1, size=size1), self._get_location(obs2, size=size2)
-        # # print(obs1, obs2, size1, size2)
-        # similarity = math.sqrt((obs1[0] - obs2[0]) * (obs1[0] - obs2[0]) + \
-        #                        (obs1[1] - obs2[1]) * (obs1[1] - obs2[1])) + \
-        #              math.sqrt((obs1[2] - obs2[2]) * (obs1[2] - obs2[2]) + \
-        #                        (obs1[3] - obs2[3]) * (obs1[3] - obs2[3]))
-        return - 1
+        obs1, obs2 = self._query[0].split('\n')[-1], key[0].split('\n')[-1]
+        # obs1, obs2 = self._query[0], key[0]
+        size1, size2 = self._get_num(self._query[1])[0], self._get_num(key[1])[0]
+        print(obs1, obs2, size1, size2)
+        # obs1, obs2 = self._get_num(obs1), self._get_num(obs2)
+        obs1, obs2 = self._get_location(obs1, size=size1), self._get_location(obs2, size=size2)
+        # print(obs1, obs2, size1, size2)
+        similarity = math.sqrt((obs1[0] - obs2[0]) * (obs1[0] - obs2[0]) + \
+                               (obs1[1] - obs2[1]) * (obs1[1] - obs2[1])) + \
+                     math.sqrt((obs1[2] - obs2[2]) * (obs1[2] - obs2[2]) + \
+                               (obs1[3] - obs2[3]) * (obs1[3] - obs2[3]))
+        return - similarity
         #  }}} method __call__ #
 
     def _get_num(self, observation: str) -> List[int]:
         return [int(num) for num in re.findall(r'\b\d+\b', observation)]
     
     def _get_location(self, observation: str, size: int) -> List[int]:
-        match = re.search(r'Currently at (\w+), aiming for (\w+)', observation)
-        # match = re.search(r'Currently at (\w), aiming for (\w)', observation)
+        # match = re.search(r'Currently at (\w+), aiming for (\w+)', observation)
+        match = re.search(r'Currently at (\w), aiming for (\w)', observation)
 
         if not match:
             return None  # 没有匹配到
@@ -75,8 +72,9 @@ class NoneMatcher(Matcher[Tuple[str, Any]]):
         char1 = match.group(1)
         char2 = match.group(2)
 
-        location1 = name_to_location[char1]
-        location2 = name_to_location[char2]
+        # 获取两个字符的位置
+        location1 = self._get_char_location(char1, size)
+        location2 = self._get_char_location(char2, size)
 
         return [*location1, *location2]
 
@@ -181,8 +179,8 @@ class HistoryReplay(AbstractHistoryReplay[Key, Action]):
                  , gamma: float = 1.
                  , step_penalty: float = 0.
                  , update_mode: str = "mean"
-                 , learning_rate: float = 0.5
-                 , n_step_flatten: Optional[int] = 2
+                 , learning_rate: float = 0.1
+                 , n_step_flatten: Optional[int] = 1
                  , action_history_update_mode: str = "shortest"
                  ):
         #  method __init__ {{{ #
@@ -246,6 +244,9 @@ class HistoryReplay(AbstractHistoryReplay[Key, Action]):
             self._similarity_matrix: np.ndarray = np.zeros((self._item_capacity, self._item_capacity)
                                                            , dtype=np.float32
                                                            )
+            # 相似矩阵用来判断是否删除某个记录, 如果有最大容量.
+        # self._index_pool: Deque[int] = collections.deque(range(self._item_capacity))
+        # self._index_dict: Dict[HistoryReplay.Key, int] = {}
         self._keys: List[HistoryReplay] = []  # 记录历史中的索引
         self._max_id: int = 0
         #  }}} method __init__ #
@@ -340,40 +341,37 @@ class HistoryReplay(AbstractHistoryReplay[Key, Action]):
                 and len(self._observation_buffer) == self._observation_buffer.maxlen:
 
             # 用于计算n步更新从 [0] 开始, 到 [-1] 结束
-            # print("update = ", self._observation_buffer, self._action_buffer, self._reward_buffer)
-            
-            for i in range(self._n_step_flatten, 0, -1):
-                step = self._observation_buffer[i - 1]
-                action: Action = self._action_buffer[i - 1]
-                if action is None:
-                    return
-                step_: Key = self._observation_buffer[i]
-                reward: float = self._reward_buffer[i]
+            step = self._observation_buffer[0]
+            action: Action = self._action_buffer[0]
+            if action is None:
+                return
+            step_: Key = self._observation_buffer[-1]
+            reward: float = self._reward_buffer[1]
 
-                action_history: List[Action] = self._action_history[:i-self._n_step_flatten]
-                last_reward: float = self._reward_buffer[i - 1]
-                total_reward: float = self._total_reward_buffer[i - 1]
+            action_history: List[Action] = self._action_history[:-self._n_step_flatten]
+            last_reward: float = self._reward_buffer[0]
+            total_reward: float = self._total_reward_buffer[0]
 
-                if not self._insert_key(step
-                        , action_history
-                        , last_reward
-                        , total_reward
-                                        ):
-                    return
+            if not self._insert_key(step
+                    , action_history
+                    , last_reward
+                    , total_reward
+                                    ):
+                return
 
-                # 更新Q值 #TODO how to do update
-                new_estimation: np.float64 = np.convolve(np.asarray(self._reward_buffer, dtype=np.float32)[i:]
-                                                        , self._filter
-                                                        , mode="valid"
-                                                        )[0]
+            # 更新Q值 #TODO how to do update
+            new_estimation: np.float64 = np.convolve(np.asarray(self._reward_buffer, dtype=np.float32)[1:]
+                                                     , self._filter
+                                                     , mode="valid"
+                                                     )[0]
 
-                action_dict: HistoryReplay.ActionDict = self._record[step]["action_dict"]
-                self._update_action_record(action_dict
-                                        , action, reward
-                                        , float(new_estimation)
-                                        , step_, reference_q_table
-                                        )
-                self._prune_action(action_dict)
+            action_dict: HistoryReplay.ActionDict = self._record[step]["action_dict"]
+            self._update_action_record(action_dict
+                                       , action, reward
+                                       , float(new_estimation)
+                                       , step_, reference_q_table
+                                       )
+            self._prune_action(action_dict)
 
         if last_step:
             self._clear_buffer()

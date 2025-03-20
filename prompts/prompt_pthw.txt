@@ -1,39 +1,35 @@
-I am currently navigating through a cubic maze and need assistance in determining my next moves towards the exit, which is represented by target coordinates.
-Each location in the maze is defined by (x, y, z), where x is the abscissa, y is the ordinate, and z is the vertical coordinate. The maze ranges from 0 to size - 1 in each dimension.
-In the maze, my available actions are:
+I'm now in a square maze and need to find the exit (target location). You need to help me make decisions about my next action.
+The coordinates of each location are given in the form of (x, y), where x represents the abscissa and y represents the ordinate. The location starts from 0 and ends for (size - 1). In the maze, my available actions are:
 
-turn forward
 turn right
 turn up
-turn backward
 turn left
 turn down
 
 The following are explanations of the available actions:
-- turn forward: Add 1 to the abscissa (x) and leave the others unchanged.
-- turn right: Add 1 to the ordinate (y) and leave the others unchanged.
-- turn up: Add 1 to the vertical coordinate (z) and leave the others unchanged.
-- turn backward: Decrease 1 from the abscissa (x) and leave the others unchanged.
-- turn left: Decrease 1 from the ordinate (y) and leave the others unchanged.
-- turn down: Decrease 1 from the vertical coordinate (z) and leave the others unchanged.
-
+turn right -> Add 1 to the ordinate y and leave the abscissa unchanged.
+turn up -> Add 1 to the abscissa x and leave the ordinate unchanged.
+turn left -> Decrease 1 to the ordinate y and leave the abscissa unchanged.
+turn down -> Decrease 1 to the abscissa x and leave the ordinate unchanged.
 
 Specifically, given an input, I will give some action advices with encouraging or discouraging along with their value estimation, and the reason of this advice if the action is a "turn up".
-Q(s, a) represents the average cumulative reward value R that can be obtained by taking action a in state s (e.g., coordinates x, y, z) and continuing to execute according to the current policy (i.e., the state-action mapping function) until the task is completed. A higher cumulative reward R indicates a better strategy.
 
 Here are several common PRINCIPLES to make a decision:
 
-1. Evaluate the next step based on the current and target locations.
-2. Avoid obstacles; I cannot move through obstructed paths.
-3. Opt for the shortest possible path.
-4. Minimize repeating incorrect actions.
-5. Encourage actions with higher value estimations (e.g., 1) and discourage actions with lower estimations (e.g., 0).
-6. If at the boundary of the maze, refrain from moving towards it. For instance, if the current position is (4, 2, 2), do not choose 'turn forward' as it would breach the upper boundary.
+1. I will judge the next step based on the current location and target location.
+2. I can't walk where there are obstacles.
+3. I want to take the shortest possible path.
+4. I will avoid always repeating a wrong action.
+5. I should encourage the actions with higher value estimations like 1 and discourage the actions with low value estimations like 0.
+6. If you have reached the boundary of the maze, I should not move towards the boundary. For example, if the current position is (0, 2), you cannot move "turn down" because I have now reached the lower boundary.
 
 
-More importantly, your output format must be similar to the output format of the examples:
-Encouraged:
-Discouraged:
+You need to output your results in JSON format, for example:
+{
+    "action": "turn left",
+    "reason": "Because this node is the target node, and I should reach it",
+    "Q_value": 1
+}
 
 
 Here are some examples:

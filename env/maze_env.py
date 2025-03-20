@@ -4,18 +4,13 @@ import pygame
 import numpy as np
 from typing import List, Dict, Set
 from queue import Queue
-from openpyxl import Workbook
-import os
-import json
 
 class MazeEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, size: int = 5, obstacles_num: int = 3, random_location: bool = False, obstacles_location: np.array = None, running_path = r'D:\environment\jsbsim_env\n_step\LLM_Test\remember'):
+    def __init__(self, size: int = 5, obstacles_num: int = 3, random_location: bool = False, obstacles_location: np.array = None):
         self.size = size  # The size of the square grid
         self.window_size = 512  # The size of the PyGame window
-
-        self.running_path = running_path
 
         self.observation_space = spaces.Dict(
             {
@@ -49,10 +44,10 @@ class MazeEnv(gym.Env):
             self._obstacles_location = obstacles_location
         
         self._string_to_action = {
-            "RIGHT": 1,
-            "UP": 0,
-            "LEFT": 3,
-            "DOWN": 2,
+            "turn right": 1,
+            "turn up": 0,
+            "turn left": 3,
+            "turn down": 2,
         }
 
         """
@@ -66,17 +61,17 @@ class MazeEnv(gym.Env):
         self.clock = None
 
     # 当前位置为: , 目标的位置为: 当前位置没有/有障碍物
-    # def _get_obs(self):
-    #     # return {"agent": self._agent_location, "target": self._target_location}
-    #     obstacle = '\nNext are the position of the obstacles:\n'
-    #     obstacles_str = [f"({self._obstacles_location[idx][0]}, {self._obstacles_location[idx][1]})" for idx in
-    #                      range(self.obstacles_num)]
-    #     for str in obstacles_str:
-    #         obstacle += str + '\n'
-    #     agent_x, agent_y, target_x, target_y = self._agent_location[0], self._agent_location[1], self._target_location[0], self._target_location[1]
-    #     if self._is_in_obstacles(self._agent_location):
-    #         return f'The current position is: ({agent_x}, {agent_y}), the target position is: ({target_x}, {target_y}).' + obstacle
-    #     return f'The current position is: ({agent_x}, {agent_y}), the target position is: ({target_x}, {target_y}).' + obstacle
+    def _get_obs(self):
+        # return {"agent": self._agent_location, "target": self._target_location}
+        obstacle = '\nNext are the position of the obstacles:\n'
+        obstacles_str = [f"({self._obstacles_location[idx][0]}, {self._obstacles_location[idx][1]})" for idx in
+                         range(self.obstacles_num)]
+        for str in obstacles_str:
+            obstacle += str + '\n'
+        agent_x, agent_y, target_x, target_y = self._agent_location[0], self._agent_location[1], self._target_location[0], self._target_location[1]
+        if self._is_in_obstacles(self._agent_location):
+            return f'The current position is: ({agent_x}, {agent_y}), the target position is: ({target_x}, {target_y}).There is an obstacle at the current position.' + obstacle
+        return f'The current position is: ({agent_x}, {agent_y}), the target position is: ({target_x}, {target_y}).There are no obstacles at the current position.' + obstacle
         
     def _get_obs(self):
         return self._location_to_graph()
@@ -153,7 +148,7 @@ class MazeEnv(gym.Env):
             reward = 30 if done else -1  # Binary sparse rewards
             observation = self._get_obs()
         if np.array_equal(self._agent_location, agent_location):
-            observation = self._get_obs()
+            observation = "Nothing happened, because I have reached the end of the maze and you were still pushing me toward the edge." + '\n' + self._get_obs()
         info = self._get_info()
 
         return observation, reward, done, info
@@ -300,17 +295,11 @@ class MazeEnv(gym.Env):
 
     def _location_to_graph(self) -> str:
         self.ids = [[None for i in range(self.size)] for j in range(self.size)]
-        # character_set = [str(i) for i in range(self.size * self.size)]
-        character_set = ["U" + str(i) for i in range(self.size * self.size)]
-        # character_set = [chr(i + ord('A')) for i in range(self.size * self.size)]
-        # character_set = ['aa', 'ab', 'ac', 'ad', 'ae', 'af', 'ag', 'ah', 'ai', 'aj', 'ak', 'al', 'am', 'an', 'ao', 'ap', 'aq', 'ar', 'as', 'at', 'au', 'av', 'aw', 'ax', 'ay', 'az', 'ba', 'bb', 'bc', 'bd', 'be', 'bf', 'bg', 'bh', 'bi', 'bj', 'bk', 'bl', 'bm', 'bn', 'bo', 'bp', 'bq', 'br', 'bs', 'bt', 'bu', 'bv', 'bw', 'bx', 'by', 'bz', 'ca', 'cb', 'cc', 'cd', 'ce', 'cf', 'cg', 'ch', 'ci', 'cj', 'ck', 'cl', 'cm', 'cn', 'co', 'cp', 'cq', 'cr', 'cs', 'ct', 'cu', 'cv', 'cw', 'cx', 'cy', 'cz', 'da', 'db', 'dc', 'dd', 'de', 'df', 'dg', 'dh', 'di', 'dj', 'dk', 'dl', 'dm', 'dn', 'do', 'dp', 'dq', 'dr', 'ds', 'dt', 'du', 'dv', 'dw', 'dx', 'dy', 'dz', 'ea', 'eb', 'ec', 'ed', 'ee', 'ef', 'eg', 'eh', 'ei', 'ej','ek', 'el', 'em', 'en', 'eo',]
-        # character_set = ["Lucas", "Amelia", "Ethan", "Olivia", "Noah", "Emma", "Mason", "Ava", "Logan", "Isabella", "Liam", "Sophia", "Jacob", "Mia", "Benjamin", "Charlotte", "William", "James", "Harper", "Michael", "Evelyn", "Alexander", "Abigail", "Elijah", "Emily", "Daniel", "Elizabeth", "Matthew", "Sofia", "Henry", "Avery", "Jackson", "Ella", "Sebastian", "Scarlett", "Aiden", "Grace", "Oliver", "Chloe", "David", "Victoria", "Joseph", "Madison", "Gabriel", "Lily", "Samuel", "Layla", "Carter", "Riley", "Dylan", "Zoe", "Wyatt", "Penelope", "Owen", "Nora", "Isaac", "Zoey", "Christopher", "Aubrey", "Joshua", "Hannah", "Nathan", "Lillian", "Andrew", "Addison", "Cameron", "Ellie", "Eli", "Natalie", "Connor", "Leah", "Levi", "Brooklyn", "Aaron", "Samantha", "Luke", "Stella", "Julian", "Violet", "Christian", "Aurora", "Hunter", "Claire", "Isaiah", "Lucy", "Thomas", "Anna", "Lincoln", "Savannah", "Charles", "Audrey", "Josiah", "Katherine", "Mateo", "Sarah", "Ryan", "Paisley", "Adam", "Alexa", "Santiago", "Ariana", "Dominic", "Elena", "Asher", "Naomi", "Miles", "Caroline", "Leo", "Eliana"]
-
+        # character_set = ["U" + str(i) for i in range(self.size * self.size)]
+        character_set = [chr(i + ord('A')) for i in range(self.size * self.size)]
         current_idx = 0
         for i in range(self.size):
             for j in range(self.size):
-                # if self._is_in_obstacles([i, j]):
-                #     continue
                 self.ids[i][j] = character_set[current_idx]
                 current_idx += 1
         dis = [[0, -1], [1, 0], [0, 1], [-1, 0]]
@@ -333,19 +322,4 @@ class MazeEnv(gym.Env):
             obs += f'({self.ids[x][y]}, {self.ids[xx][yy]}); '
         agent_x, agent_y, target_x, target_y = self._agent_location[0], self._agent_location[1], self._target_location[0], self._target_location[1]
         obs += f"\nCurrently at {self.ids[agent_x][agent_y]}, aiming for {self.ids[target_x][target_y]}."
-
-        with open(os.path.join(self.running_path, 'graph.json'), 'w') as f:
-            graph = {self.ids[i][j]: [i, j] for i in range(self.size) for j in range(self.size) if not self._is_in_obstacles([i, j])}
-            f.write(json.dumps(graph))
-
         return obs
-    
-    def write_graph(self, path):
-        wb = Workbook()
-        ws = wb.active
-        for i in range(self.size):
-            for j in range(self.size):
-                if self._is_in_obstacles([i, j]):
-                    continue
-                ws.cell(row=i+1, column=j+1).value = self.ids[i][j]
-        wb.save(os.path.join(path, "maze.xlsx"))

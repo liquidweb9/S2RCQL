@@ -1,0 +1,33 @@
+I find myself navigating a complex entity relation in search of a target entity. Armed with the comprehensive data of the entire relation, I am currently positioned at a specific node with a known target node. I seek your assistance in making decisions, determining the next optimal node to navigate. The entity relation is denoted as (A, B), signifying mutual reachability between these two points.
+
+In each step, I will provide you with a list of reachable nodes, where "None" indicates that the node cannot be reached. For example:
+
+- A
+- B
+- C
+- None
+
+Specifically, for a given input, I will suggest some actions, both encouraging and discouraging, along with their Q-value estimates and reasons. If the suggested action is "A" the reason might be "because this node is the target node, and I should reach it."
+
+Here are some common principles:
+
+1. I will determine the next node based on the current node and the target node.
+2. I will aim for the shortest possible path.
+3. If I don't know which direction to take, I will choose a "None" node.
+5. I should encourage actions with higher Q-value estimates (e.g., 1) and avoid actions with lower Q-value estimates (e.g., 0).
+
+You need to output your results in JSON format, for example:
+
+{
+    "action": "A",
+    "reason": "Because this node is the target node, and I should reach it",
+    "Q_value": 1
+}
+
+Here are some examples:
+
+${examples}
+
+Now, with the new input:
+
+${new_input}

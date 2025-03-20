@@ -1,8 +1,8 @@
 from typing import NamedTuple, List, Tuple, Set, Hashable
 from typing import TypeVar, Optional, Callable, Generic
 import abc
-import os
-
+import re
+import json
 import string
 import datetime
 import time
@@ -12,8 +12,6 @@ import io
 import traceback
 
 import gym
-import re
-import json
 
 import history
 import numpy as np
@@ -46,23 +44,26 @@ A = TypeVar("Action")
 Key = TypeVar("Key", bound=Hashable)
 Action = TypeVar("Action", bound=Hashable)
 
-def remove_last_comma_and_trailing_special_chars(json_str: str):
-    json_str = json_str.split('```')[0]
+def remove_last_comma_and_trailing_special_chars(json_str):
+# 移除字符串末尾的空白字符（包括空格、制表符、换行符等）
     json_str = json_str.rstrip()
+    # 使用正则表达式找到最后一个逗号的位置（忽略逗号后面的空白字符）  
     last_comma_index = re.search(r',(?:\s*)$', json_str)
     # 如果找到了最后一个逗号，就移除它及其后面的空白字符  
     if last_comma_index:
         json_str = json_str[:last_comma_index.start()] + json_str[last_comma_index.end():]
-    return json_str
+    return json_str 
+def parse_action_with_optional(response: str) -> Tuple[str, str]:
+    matches = re.findall(r'{(.*?)\}', response, re.DOTALL)
+    matches ="{" + matches[0] + "}"
+    # matches = matches.replace("'", "\"")
+    matches =remove_last_comma_and_trailing_special_chars(matches)
+    json_data = json.loads(matches)
+    action = str(json_data['action'])
+    comment=str(json_data['reason'])
+    return action, comment if action is not None else None
+    #  }}} function parse_action_with_optional #
 
-# TODO n步
-def parse_actions_with_optional(response: str, n_actions: int = 3) -> Tuple[str, str]:
-    json_objects = re.findall(r'{.*?}', response,  flags=re.DOTALL)
-    res = [remove_last_comma_and_trailing_special_chars(i) for i in json_objects[min(-n_actions, -len(json_objects)):]]
-    json_data = [json.loads(i) for i in res]
-    actions = [(data['action'], data['thought']) for data in json_data]
-    return actions
-    # return [(action1, reason1), (action2, reason2)]
 
 # 表示一个用于与 OpenAI API 进行交互的客户端
 class AIClient(abc.ABC, Generic[A]):
@@ -109,8 +110,8 @@ class AIClient(abc.ABC, Generic[A]):
         self._last_request_time: datetime.datetime = datetime.datetime.now()
         #  }}} method __init__ #
 
-    # 根据prompt获取openai的返回结果中的actions
-    def _get_responses(self, prompt: str) -> List[Optional[A]]:
+    # 根据prompt获取openai的返回结果中的action
+    def _get_response(self, prompt: str) -> Optional[A]:
         #  method _get_response {{{ #
         """
         Args:
@@ -120,60 +121,6 @@ class AIClient(abc.ABC, Generic[A]):
             Optional[A]: the completion text
         """
 
-        try:
-            if not self._manual:
-                # 如果不是手动模式, 通过对返回数据的分析, 获取action
-                request_time = datetime.datetime.now()
-                timedelta: datetime.timedelta = request_time - self._last_request_time
-                timedelta: float = timedelta.total_seconds()
-                if self._request_pause - timedelta > 0.:
-                    time.sleep(self._request_pause - timedelta)
-
-                completion: R = self._completor(prompt=prompt)
-                # completion: Result = self._extractor(completion)
-
-                self._last_request_time = datetime.datetime.now()
-
-                # logger.debug("Return: {text: %s, reason: %s}"
-                #              , repr(completion)  # 对象的字符串表达形式
-                #              , repr(completion)
-                #              )
-
-                # response: str = ''
-                response: str = completion.strip()
-            else:
-                # 如果是手动模式, 根据用户的输入获取action
-                single_line_response: str = input(prompt)
-                response: List[str] = []
-                while single_line_response != "":
-                    response.append(single_line_response)
-                    single_line_response = input()
-                response: str = "\n".join(response)
-
-                logger.debug("Response: %s"
-                             , response
-                             )
-
-            # print("The agent's res is ", response)
-            folder_names = [item for item in os.listdir('logs') if os.path.isdir(os.path.join('logs', item))]
-            folder_names = sorted(folder_names, key=lambda x: int(x))
-            with open(f"logs/{folder_names[-1]}/agent.txt", 'a') as f:
-                f.write("the agent's response is\n" + response + '\n')
-            actions: List[A] = self._parse_actions(response)
-        except Exception as e:
-            with io.StringIO() as bfr:
-                ocounter = globals()["ocounter"]
-                traceback.print_exc(file=bfr)
-                ologger.debug("%d: %s", ocounter, bfr.getvalue())
-                logger.debug("Response error %d, %s", ocounter, str(type(e)))
-                globals()["ocounter"] += 1
-            actions = []
-
-        return actions
-        #  }}} method _get_response #
-
-    # 根据prompt获取openai的返回结果中的action
-    def _get_response(self, prompt: str) -> Optional[A]:
         try:
             if not self._manual:
                 # 如果不是手动模式, 通过对返回数据的分析, 获取action
@@ -218,17 +165,13 @@ class AIClient(abc.ABC, Generic[A]):
                 ologger.debug("%d: %s", ocounter, bfr.getvalue())
                 logger.debug("Response error %d, %s", ocounter, str(type(e)))
                 globals()["ocounter"] += 1
-            action = "Nothing"
+            action = None
 
         return action
         #  }}} method _get_response #
 
     @abc.abstractmethod
     def _parse_action(self, response: str) -> A:
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def _parse_actions(self, response: str) -> A:
         raise NotImplementedError()
 
 
@@ -361,6 +304,13 @@ class HistoryReplayClient(Generic[Key, Action]):
                 if i >= nb_examplars:
                     break
         #  }}} Construct Examplars #
+
+        logger.debug("Egs: %s", " ".join(map(str, examplar_ids)))
+        logger.debug("Sms: %s", " ".join(map("{:.2f}".format, examplar_scores)))
+        assert len(examplar_ids) >= 1
+
+        return examplars
+        #  }}} method _get_examplars #
 
     @abc.abstractmethod
     def _random_action(self, key: history.Key, encourages: bool = False) -> history.Action:

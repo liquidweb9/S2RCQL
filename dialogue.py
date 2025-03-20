@@ -1,53 +1,31 @@
-import time
-import os
 import requests
 import json
-from openai import OpenAI
 
-API_KEY = "YOUR_API_KEY"
-SECRET_KEY = "YOUR_SECRET_KEY"
-
-os.environ["OPENAI_API_KEY"] = "YOUR_API_KEY"
-
-# OPEN AI 3.5
-def dialogue_to_completions(prompt: str = "This is a test!") -> str:
-    client = OpenAI()
-
-    completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ]
-    )
-    response = completion.choices[0].message.content
-    # print(response)
-    return response
+API_KEY = "KEY"
+SECRET_KEY = "KEY"
 
 
 # # ERNIE-Bot 4.0
-# def dialogue_to_completions(prompt: str = "Hello!") -> str:
-#     url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + get_access_token()
+def dialogue_to_completions(prompt: str = "这是一个测试!") -> str:
+    url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + get_access_token()
 
-#     payload = json.dumps({
-#         "messages": [
-#             {
-#                 "role": "user",
-#                 "content": prompt
-#             }
-#         ]
-#     })
-#     headers = {
-#         'Content-Type': 'application/json'
-#     }
+    payload = json.dumps({
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    })
+    headers = {
+        'Content-Type': 'application/json'
+    }
 
-#     response = requests.request("POST", url, headers=headers, data=payload)
-#     response = json.loads(response.text)
+    response = requests.request("POST", url, headers=headers, data=payload)
+    response = json.loads(response.text)
 
-#     # print(response['result'])
-#     return response['result']
+    # print(response['result'])
+    return response['result']
 
 # # ERNIE-Bot-turbo-0922
 # def dialogue_to_completions(
@@ -55,7 +33,7 @@ def dialogue_to_completions(prompt: str = "This is a test!") -> str:
 # ):
 #     # return None
 #     url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token=" + get_access_token()
-#
+
 #     payload = json.dumps({
 #         "messages": [
 #             {
@@ -67,10 +45,10 @@ def dialogue_to_completions(prompt: str = "This is a test!") -> str:
 #     headers = {
 #         'Content-Type': 'application/json'
 #     }
-#
+
 #     response = requests.request("POST", url, headers=headers, data=payload)
 #     response = json.loads(response.text)
-#
+
 #     # print(response['result'])
 #     return response['result']
 
@@ -86,5 +64,5 @@ def get_access_token():
 
 
 if __name__ == '__main__':
-    print(dialogue_to_completions())
-    
+    prompt = ''''''
+    print(dialogue_to_completions(prompt))

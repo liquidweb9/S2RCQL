@@ -2,14 +2,12 @@ import abc
 import logging
 import math
 import re
-import os
 
 from typing import List, Tuple
 from typing import Callable, Optional
 
 import gym
 import tiktoken
-import json
 
 import agent_protos
 
@@ -21,16 +19,6 @@ logger = logging.getLogger("Maze-Agent")
 Key = Tuple[str, str, str]  # (observation, task, available_actions)
 Action = Tuple[str, str]  # (action, reason)
 
-def graph_info(observation: str) -> dict:
-    with open('graph.json', 'r') as f:
-        name_to_location = json.loads(f.read())
-
-    match = re.search(r'Currently at (\w+), aiming for (\w+)', observation)
-    # match = re.search(r'Currently at (\w), aiming for (\w)', observation)
-    agent, target = match.group(1), match.group(2)
-    location = name_to_location[agent]
-    
-    return {"current position": location}
 
 class Agent(abc.ABC):
     #  class Agent {{{ #
@@ -47,27 +35,25 @@ class Agent(abc.ABC):
 
     def end(self
             , task: str
-            , observations: List[str]
-            , reward_run: List[float]
+            , observation: str
+            , reward: float
             , total_reward: float
             , available_actions: List[str]
-            , action_run: List[str]
             ):
         pass
 
     def __call__(self
                  , task: str
-                 , observations: List[str]
-                 , reward_run: List[float]
+                 , observation: str
+                 , reward: float
                  , total_reward: float
                  , available_actions: List[str]
-                 , action_run: List[str]
-                 ) -> List[str]:
+                 ) -> str:
         #  method __call__ {{{ #
         """
         Args:
             task (str): task instruction
-            observations (str): observation
+            observation (str): observation
             reward (float): the last reward
             total_reward (float): the total history reward
             available_actions (List[str]): available_actions on the current observation
@@ -75,23 +61,17 @@ class Agent(abc.ABC):
         Returns:
             Action: the action to take
         """
-        actions = []
-        action_tuples: List[Action] = self._get_actions(task
-                                                , observations
-                                                , reward_run
+        action_tuple: Action = self._get_action(task
+                                                , self._preprocess_observation(observation)
+                                                , reward
                                                 , total_reward
                                                 , available_actions
-                                                , action_run
                                                 )
-        for action_tuple in action_tuples:
-            action_str: str = action_tuple[0]
+        action_str: str = action_tuple[0]
 
-            if action_str == "NOTHING" or action_str == "None":
-                continue
-            self._action_history.append((action_tuple[0], ''))
-                
-            actions.append(action_str)
-        return actions
+        if action_str != "NOTHING":
+            self._action_history.append(action_tuple)
+        return action_str
         #  }}} method __call__ #
 
     @abc.abstractmethod
@@ -102,17 +82,6 @@ class Agent(abc.ABC):
                     , total_reward: float
                     , available_actions: List[str]
                     ) -> Action:
-        raise NotImplementedError()
-
-    @abc.abstractmethod
-    def _get_actions(self
-                    , task: str
-                    , observation: List[str]
-                    , reward_run: List[float]
-                    , total_reward: float
-                    , available_actions: List[str]
-                    , action_run: List[str]
-                    ) -> List[Action]:
         raise NotImplementedError()
 
     def _preprocess_observation(self,
@@ -180,7 +149,7 @@ class AutoAgent(Agent
                  , manual: bool = False
                  , train: bool = True
                  , env_mode: str = "text_rich"
-                 , epsilon: float = 0.3  # 随机选择动作的概率
+                 , epsilon: float = 0.5  # 随机选择动作的概率
                  ):
         #  method __init__ {{{ #
         super(AutoAgent, self).__init__(env_mode)
@@ -207,19 +176,11 @@ class AutoAgent(Agent
 
         self._static: bool = static
         self._epsilon: float = epsilon
-        # self._action_to_direction = {
-        #     0: [1, 0, 0],  # turn forward
-        #     1: [0, 1, 0],  # turn right
-        #     2: [0, 0, 1],  # turn up
-        #     3: [-1, 0, 0],  # turn backward
-        #     4: [0, -1, 0],  # turn left
-        #     5: [0, 0, -1],  # turn down
-        # }
         self._action_to_direction = {
-            0: [1, 0],  # turn up
-            1: [0, 1],  # turn right
-            2: [-1, 0],  # turn down
-            3: [0, -1],  # turn left
+            0: [1, 0],
+            1: [0, 1],
+            2: [-1, 0],
+            3: [0, -1],
         }
         #  }}} method __init__ #
 
@@ -227,29 +188,26 @@ class AutoAgent(Agent
         super(AutoAgent, self).reset()
         # self._history_replay.new_trajectory()
 
-    def set_epsilon(self, epsilon: float):
-        self._epsilon = epsilon
-
     def end(self
             , task: str
-            , observations: List[str]
-            , reward_run: List[float]
+            , observation: str
+            , reward: float
             , total_reward: float
             , available_actions: List[str]
-            , action_run: List[str]
             ):
         #  method end {{{ #
         # observation: str = "\n".join(self._preprocess_observation(observation))
         available_actions: str = "\n".join(available_actions)
         if self._train:
-            for idx in range(len(observations)):
-                observation = observations[idx]
-
-                self._history_replay.update((observation, task, available_actions)
-                                            , reward_run[idx] if len(reward_run) > 0 else 0
-                                            , (action_run[idx], '') if len(action_run) > 0 else None
-                                            , last_step=True if idx == len(observations) - 1 else False
-                                            )
+            last_action: Optional[Action] = self._action_history[-1] \
+                if len(self._action_history) > 0 \
+                else None
+            # print("end = ", last_action, observation)
+            self._history_replay.update((observation, task, available_actions)
+                                        , reward
+                                        , last_action
+                                        , last_step=True
+                                        )
         #  }}} method end #
 
     # 输入实例模板
@@ -271,13 +229,13 @@ class AutoAgent(Agent
                         )
                 )
             , actions= \
-                "[" + ", ".join(
-                    map(lambda act: f"{act}"
-                        , map("".join
-                              , action_history[-min(10, len(action_history)):]
+                "\n".join(
+                    map(lambda act: "- " + act
+                        , map(" ".join
+                              , action_history[-min(5, len(action_history)):]
                               )
                         )
-                ) + "]"
+                )
             , reward="{:.1f}".format(reward)
             , total_reward="{:.1f}".format(total_reward)
             , available_actions= \
@@ -308,10 +266,6 @@ class AutoAgent(Agent
         #  }}} method _random_action #
 
     def _get_location(self, observation: str, size: int) -> List[int]:
-        with open('graph.json', 'r') as f:
-            name_to_location = json.loads(f.read())
-
-        # match = re.search(r'Currently at (\w+), aiming for (\w+)', observation)
         match = re.search(r'Currently at (\w+), aiming for (\w+)', observation)
         # match = re.search(r'Currently at (\w), aiming for (\w)', observation)
 
@@ -322,14 +276,28 @@ class AutoAgent(Agent
         char2 = match.group(2)
 
         # 获取两个字符的位置
-        location1 = name_to_location[char1]
-        location2 = name_to_location[char2]
+        location1 = self._get_char_location(char1, size)
+        location2 = self._get_char_location(char2, size)
 
         return [*location1, *location2]
+    
+    def _get_char_location(self, current_char, size):
+        current_char_value = int(current_char[1:])
+        start_char_value = 0
+        # current_char_value = ord(current_char)
+        # start_char_value = ord('A')
 
+        if current_char_value < start_char_value or current_char_value > start_char_value + size * size - 1:
+            return None  # 当前字符超出范围
+
+        row = (current_char_value - start_char_value) // size
+        col = (current_char_value - start_char_value) % size
+
+        return row, col
+    
     def _is_encourages(self, observation: str, action: int, size: int) -> bool:
         location = self._get_location(observation=observation, size=size)
-        # location = [int(num) for num in re.findall(r'\b\d+\b', observation)]
+        # location = self._get_location(observation=observation, size=size)
         agent, target = location[0: 2], location[2: 4]
         dis = abs(target[0] - agent[0]), abs(target[1] - agent[1])
         obs_location = [location[i: i + 2] for i in range(4, len(location), 2)]
@@ -373,11 +341,6 @@ class AutoAgent(Agent
     def _parse_action(self, response: str) -> Action:
         #  method _parse_action {{{ #
         return agent_protos.parse_action_with_optional(response)
-        #  }}} method _parse_action #
-
-    def _parse_actions(self, response: str) -> List[Action]:
-        #  method _parse_action {{{ #
-        return agent_protos.parse_actions_with_optional(response)
         #  }}} method _parse_action #
 
     def _get_action(self
@@ -462,88 +425,12 @@ class AutoAgent(Agent
         return (action_text, reason)
         #  }}} method _get_action #
 
-    def _get_actions(self
-                    , task: str
-                    , observations: List[str]
-                    , reward_run: List[float]
-                    , total_reward: float
-                    , available_actions: List[str]
-                    , action_run: List[str]
-                    ) -> List[Action]:
-        #  method _get_action {{{ #
-        # observation: str = "\n".join(observation)
-        available_actions: str = "\n".join(available_actions)
-        # func end
-
-        #  Replay Updating {{{ #
-        # print(observations)
-        if self._train:
-            for idx in range(len(observations)):
-                observation = observations[idx]
-
-                # print("reward = ", reward_run[idx] if len(reward_run) > 0 else 0, observation, (action_run[idx], '') if len(action_run) > 0 else None)
-                self._history_replay.update((observation, task, available_actions)
-                                            , reward_run[idx] if len(reward_run) > 0 else 0
-                                            , (action_run[idx], '') if len(action_run) > 0 else None
-                                            )
-        #  }}} Replay Updating #
-
-        #  Construct New Input {{{ #
-        key = (observations[-1], task, available_actions)
-        if np.random.uniform() <= 1. - self._epsilon or key not in self._history_replay._record.keys():
-            size = int(re.findall(r'\d+', key[1])[0])
-
-            new_input: str = self._instantiate_input_template(task=''
-                                                              , observation=observations[-1]
-                                                              , action_history=self._action_history
-                                                              , reward=reward_run[-1] if len(reward_run) > 0 else 0
-                                                              , total_reward=total_reward
-                                                              , available_actions=available_actions
-                                                              )
-
-            # q_table
-            q_table = self._get_q_table((observations[-1], task, available_actions))
-            q_table_string = json.dumps(q_table, indent=4)
-            q_table_string = q_table_string.replace('"(', '(')
-            q_table_string = q_table_string.replace(')"', ')')
-            # q_table
-
-            prompt: str = self._prompt_templates.whole_template.safe_substitute(q_table=q_table_string
-                                                                                , new_input=new_input
-                                                                                , size=size
-                                                                                )
-            print("prompt = ", prompt)
-            folder_names = [item for item in os.listdir('logs') if os.path.isdir(os.path.join('logs', item))]
-            folder_names = sorted(folder_names, key=lambda x: int(x))
-            with open(f'logs/{folder_names[-1]}/prompt.txt', 'a') as f:
-                f.write(prompt + '\n')
-            actions: List[Optional[Action]] = self._get_responses(prompt)
-            print("actions = ", actions)
-            # print("action = ", action)
-            # with open('logs/prompt.txt', 'a') as f:
-            #     f.write(str(actions) + '\n')
-        else:
-            actions = [self._get_qmax_action((observations[-1], task, available_actions))]
-            print("get_qmax_action = ", actions[0])
-        self._epsilon += 0.01 # TODO 每一次的随机值都增加一点
-        if len(actions) <= 0:
-            action_text: List[str] = ["NOTHING"]
-            reason: List[str] = [""]
-        else:
-            action_text: List[str] = []
-            reason: List[str] = []
-            for action in actions:
-                action_text.append(action[0])
-                reason.append(action[1])
-
-        logger.debug("Action: %s %s", action_text, reason)
-        return [(action_text_, reason_) for action_text_, reason_ in zip(action_text, reason)]
-        #  }}} method _get_action #
-
     def train(self, train: bool):
         super(agent_protos.AIClient, self).train(train)
         # self._temperature = self._config_temperature if self._train else 0.
-    #  }}} class AutoAgent #
+
+    def set_epsilon(self, epsilon: float):
+        self._epsilon = epsilon
 
     def _get_qmax_action(self, key: Tuple[str, str, str]) -> Action:
         record = self._history_replay._record
@@ -551,78 +438,3 @@ class AutoAgent(Agent
         sorted_actions = sorted(action_dict, key=lambda x: x[1].get("qvalue", -100.), reverse=True)
         return sorted_actions[0][0]
     #  }}} class AutoAgent #
-
-    def _get_action_qvalue(self, key: Tuple[str, str, str], action: str) -> Tuple[Action, float]:
-        record = self._history_replay._record
-        
-        key_ = None
-        for k, v in record.items():
-            if k[0] == key[0]:
-                key_ = k
-                break
-        if key_ is None:
-            return ((action, ''), np.random.uniform() / 2.)
-        key = key_
-
-        record_dict = record[key]['action_dict']
-        item = [(key, vlaue['qvalue']) for key, vlaue in record_dict.items() if key[0] == action]
-        if not item:
-            return ((action, ''), np.random.uniform() / 2.)
-        return max(item, key=lambda x: x[1])
-    
-    def _get_q_table(self, key: Tuple[str, str, str]) -> dict[str, float]:
-        with open('graph.json', 'r') as f:
-            name_to_location = json.loads(f.read())
-
-        location_info = graph_info(key[0])
-        now_x, now_y = location_info.get('current position', None)
-        format_location = re.sub(r'Currently at (\w+)', '{}', key[0], count=1)
-        # format_location = re.sub(r'Currently at (\w)', '{}', key[0], count=1)
-        # format_location = re.sub(r'\((\d+), (\d+)\)', '{}', key[0], count=1)
-        size = int(re.findall(r'\d+', key[1])[0])
-
-        q_table = dict()
-
-        for dx in range(-size, size):
-            for dy in range(-size, size):
-                if abs(dx) + abs (dy) > 3:
-                    continue
-                xx, yy = now_x + dx, now_y + dy
-                if xx < 0 or xx >= size or yy < 0 or yy >= size:
-                    continue
-
-                ids = [ids for ids, vlaue in name_to_location.items() if vlaue == [xx, yy]]
-                if len(ids) == 0:
-                    continue
-                else:
-                    ids = ids[0]
-                if key[0].find(ids) == -1:
-                    continue
-
-                observation = format_location.format('Currently at ' + ids)
-                key_ = (observation, key[1], key[2])
-                action_dict = dict()
-
-                actions = []
-                for i, j in zip([-1, 0, 1, 0], [0, -1, 0, 1]):
-                    x_, y_ = xx + i, yy + j
-                    if x_ < 0 or x_ >= size or y_ < 0 or y_ >= size:
-                        continue
-                    p = [ids for ids, vlaue in name_to_location.items() if vlaue == [x_, y_]]
-                    if len(p) == 0:
-                        continue
-                    else:
-                        p = p[0]
-                    if key[0].find(p) == -1:
-                        continue
-                    # print(ids, p)
-                    actions.append(p)
-
-                for action in actions:
-                    if action == 'None': continue
-                    action_, q_value = self._get_action_qvalue(key_, action)
-                    reason = action_[1]
-                    action_dict[action] = {'qvalue': round(q_value, 2), 'reason': reason} if len(reason) > 0 else {'qvalue': round(q_value, 2)}
-                q_table[f'{ids}'] = action_dict
-
-        return q_table

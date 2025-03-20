@@ -1,0 +1,100 @@
+? !!python/tuple
+- "The current position is: (0, 0), the target position is: (1, 2).There are no obstacles at the current position."
+- |
+
+  Maze
+  Instruction:
+  I'm now in a 3*3 Maze. There are some obstacles whose locations are unknown in this Maze.  You need to continue exploring from the current location until you finally find the target location.
+- 'turn up
+
+  turn right
+
+  turn down
+
+  turn left'
+: action_dict:
+    ? &act0 !!python/tuple
+    - turn right
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: 0.0
+    ? !!python/tuple
+    - turn down
+    - Nothing happened, because me have reached the end of the maze.
+    : number: 1
+      qvalue: 0.0
+      reward: -1.0
+  other_info:
+    action_history: []
+    last_reward: -1.0
+    number: 1
+    total_reward: -1.0
+  id: 0
+? !!python/tuple
+- "The current position is: (0, 1), the target position is: (1, 2).There are no obstacles at the current position."
+- |
+
+  Instruction:
+  I'm now in a 3*3 Maze. There are some obstacles whose locations are unknown in this Maze.  You need to continue exploring from the current location until you finally find the target location.
+- 'turn up
+
+  turn right
+
+  turn down
+
+  turn left'
+: action_dict:
+    ? &act1 !!python/tuple
+    - turn right
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - turn up
+    - There is an obstacles at the current position.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    last_reward: -1.0
+    number: 1
+    total_reward: -2.0
+  id: 1
+? !!python/tuple
+- "The current position is: (0, 2), the target position is: (1, 2).There are no obstacles at the current position."
+- |
+
+  Instruction:
+  I'm now in a 3*3 Maze. There are some obstacles whose locations are unknown in this Maze.  You need to continue exploring from the current location until you finally find the target location.
+- 'turn up
+
+  turn right
+
+  turn down
+
+  turn left'
+: action_dict:
+    ? &act2 !!python/tuple
+    - turn up
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 2.0
+      reward: 10.0
+    ? !!python/tuple
+    - turn right
+    - There is an obstacles at the current position.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    - *act1
+    last_reward: 10.0
+    number: 1
+    total_reward: 8.0
+  id: 2

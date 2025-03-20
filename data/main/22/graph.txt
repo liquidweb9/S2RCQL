@@ -1,0 +1,1 @@
+You are in a 5 by 5 world. There are obstacles that you have to avoid at: (1, 1), (4, 0), (3, 0), (2, 4) and (0, 0). Go from (0, 4) to (3, 2).

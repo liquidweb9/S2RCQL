@@ -1,0 +1,9 @@
+---
+${task}
+Observation: |
+${observation}
+Available Actions:
+${available_actions}
+Action History:
+${actions}
+...

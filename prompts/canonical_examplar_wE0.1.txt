@@ -1,0 +1,16 @@
+---
+Last 5 Actions:
+
+Observation: |
+  
+  Maze
+  Instruction:
+  I'm now in a 5*5 Maze. There are some obstacles whose locations are unknown in this Maze. You need to continue exploring from the current location (3, 3) until you finally find the target location (3 ,4).
+Available Actions:
+- turn right
+...
+
+Encouraged:
+turn right -> 1.0 If there are no obstacles in the place I pass, then I can reach the target location directly
+Discouraged:
+turn left -> 0.0 Keep me away from target location

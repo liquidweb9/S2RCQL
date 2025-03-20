@@ -1,0 +1,1 @@
+{"size": 7, "obstacles_num": 7, "obstacles_location": [[1, 5], [1, 6], [6, 1], [2, 5], [6, 3], [6, 4], [6, 3]], "agent_location": [0, 5], "target_location": [2, 6], "point_at_one": [1, 4], "point_at_two": [3, 5]}

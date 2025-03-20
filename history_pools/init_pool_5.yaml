@@ -1,0 +1,159 @@
+? !!python/tuple
+- "The current position is: (0, 0), the target position is: (4, 4).There are no obstacles at the current position.\n
+Next are the location of the obstacles:\n
+  (1, 2)\n
+  (2, 1)\n
+  (0, 4)\n
+  (4, 2)\n
+  (3, 3)"
+- |
+
+  Maze
+  Instruction:
+  I'm now in a 5*5 Maze. There are some obstacles whose locations are known in this Maze.  You need to continue exploring from the current location until you finally find the target location.
+- 'turn up
+
+  turn right
+
+  turn down
+
+  turn left'
+: action_dict:
+    ? &act0 !!python/tuple
+    - turn right
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: 0.0
+    ? !!python/tuple
+    - turn down
+    - Nothing happened, because me have reached the end of the maze.
+    : number: 1
+      qvalue: 0.0
+      reward: -1.0
+  other_info:
+    action_history: []
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0
+  id: 0
+? !!python/tuple
+- "The current position is: (0, 1), the target position is: (4, 4).There are no obstacles at the current position.\n
+Next are the location of the obstacles:\n
+  (1, 2)\n
+  (2, 1)\n
+  (0, 4)\n
+  (4, 2)\n
+  (3, 3)"
+- |
+
+  Instruction:
+  I'm now in a 5*5 Maze. There are some obstacles whose locations are unknown in this Maze.  You need to continue exploring from the current location until you finally find the target location.
+- 'turn up
+
+  turn right
+
+  turn down
+
+  turn left'
+: action_dict:
+    ? &act1 !!python/tuple
+    - turn right
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: 0.0
+    ? !!python/tuple
+    - turn left
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: 0.0
+      reward: 0.0
+  other_info:
+    action_history:
+    - *act0
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0
+  id: 1
+? !!python/tuple
+- "The current position is: (0, 2), the target position is: (4, 4).There are no obstacles at the current position.\n
+Next are the location of the obstacles:\n
+  (1, 2)\n
+  (2, 1)\n
+  (0, 4)\n
+  (4, 2)\n
+  (3, 3)"
+- |
+
+  Instruction:
+  I'm now in a 5*5 Maze. There are some obstacles whose locations are unknown in this Maze.  You need to continue exploring from the current location until you finally find the target location.
+- 'turn up
+
+  turn right
+
+  turn down
+
+  turn left'
+: action_dict:
+    ? &act2 !!python/tuple
+    - turn right
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: 0.0
+    ? !!python/tuple
+    - turn up
+    - There is an obstacles at the next position.
+    : number: 1
+      qvalue: -10.0
+      reward: -100.0
+  other_info:
+    action_history:
+    - *act0
+    - *act1
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0
+  id: 2
+? !!python/tuple
+- "The current position is: (0, 3), the target position is: (4, 4).There are no obstacles at the current position.\n
+Next are the location of the obstacles:\n
+  (1, 2)\n
+  (2, 1)\n
+  (0, 4)\n
+  (4, 2)\n
+  (3, 3)"
+- |
+
+  Instruction:
+  I'm now in a 5*5 Maze. There are some obstacles whose locations are unknown in this Maze.  You need to continue exploring from the current location until you finally find the target location.
+- 'turn up
+
+  turn right
+
+  turn down
+
+  turn left'
+: action_dict:
+    ? &act3 !!python/tuple
+    - turn up
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: 0.0
+    ? !!python/tuple
+    - turn right
+    - There is an obstacles at the next location.
+    : number: 1
+      qvalue: -10.0
+      reward: -100.0
+  other_info:
+    action_history:
+    - *act0
+    - *act1
+    - *act2
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0
+  id: 3

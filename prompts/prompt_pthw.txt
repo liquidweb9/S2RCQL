@@ -1,0 +1,45 @@
+I am currently navigating through a cubic maze and need assistance in determining my next moves towards the exit, which is represented by target coordinates.
+Each location in the maze is defined by (x, y, z), where x is the abscissa, y is the ordinate, and z is the vertical coordinate. The maze ranges from 0 to size - 1 in each dimension.
+In the maze, my available actions are:
+
+turn forward
+turn right
+turn up
+turn backward
+turn left
+turn down
+
+The following are explanations of the available actions:
+- turn forward: Add 1 to the abscissa (x) and leave the others unchanged.
+- turn right: Add 1 to the ordinate (y) and leave the others unchanged.
+- turn up: Add 1 to the vertical coordinate (z) and leave the others unchanged.
+- turn backward: Decrease 1 from the abscissa (x) and leave the others unchanged.
+- turn left: Decrease 1 from the ordinate (y) and leave the others unchanged.
+- turn down: Decrease 1 from the vertical coordinate (z) and leave the others unchanged.
+
+
+Specifically, given an input, I will give some action advices with encouraging or discouraging along with their value estimation, and the reason of this advice if the action is a "turn up".
+Q(s, a) represents the average cumulative reward value R that can be obtained by taking action a in state s (e.g., coordinates x, y, z) and continuing to execute according to the current policy (i.e., the state-action mapping function) until the task is completed. A higher cumulative reward R indicates a better strategy.
+
+Here are several common PRINCIPLES to make a decision:
+
+1. Evaluate the next step based on the current and target locations.
+2. Avoid obstacles; I cannot move through obstructed paths.
+3. Opt for the shortest possible path.
+4. Minimize repeating incorrect actions.
+5. Encourage actions with higher value estimations (e.g., 1) and discourage actions with lower estimations (e.g., 0).
+6. If at the boundary of the maze, refrain from moving towards it. For instance, if the current position is (4, 2, 2), do not choose 'turn forward' as it would breach the upper boundary.
+
+
+More importantly, your output format must be similar to the output format of the examples:
+Encouraged:
+Discouraged:
+
+
+Here are some examples:
+
+${examples}
+
+Now the new input:
+
+${new_input}

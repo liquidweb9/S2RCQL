@@ -1,0 +1,96 @@
+? !!python/tuple
+- "There is an association between A and F;There is an association between A and B;There is an association between B and G;There is an association between B and C;There is an association between C and D;There is an association between D and I;There is an association between D and E;There is an association between E and J;There is an association between F and K;There is an association between F and G;There is an association between G and L;There is an association between I and N;There is an association between I and J;There is an association between J and O;There is an association between K and P;There is an association between K and L;There is an association between L and Q;There is an association between L and M;There is an association between M and R;There is an association between M and N;There is an association between N and S;There is an association between N and O;There is an association between O and T;There is an association between P and U;There is an association between P and Q;There is an association between Q and V;There is an association between Q and R;There is an association between R and S;There is an association between S and X;There is an association between S and T;There is an association between U and V;
+
+Currently at D, aiming for M"
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'C
+
+  I
+
+  E
+
+  None'
+: action_dict:
+    ? &act0 !!python/tuple
+    - I
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - None
+    - Nothing happened, chose to go to a non-existent node.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history: []
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0
+  id: 0
+? !!python/tuple
+- "There is an association between A and F;There is an association between A and B;There is an association between B and G;There is an association between B and C;There is an association between C and D;There is an association between D and I;There is an association between D and E;There is an association between E and J;There is an association between F and K;There is an association between F and G;There is an association between G and L;There is an association between I and N;There is an association between I and J;There is an association between J and O;There is an association between K and P;There is an association between K and L;There is an association between L and Q;There is an association between L and M;There is an association between M and R;There is an association between M and N;There is an association between N and S;There is an association between N and O;There is an association between O and T;There is an association between P and U;There is an association between P and Q;There is an association between Q and V;There is an association between Q and R;There is an association between R and S;There is an association between S and X;There is an association between S and T;There is an association between U and V;
+
+Currently at I, aiming for M"
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'D
+
+  N
+
+  J
+
+  None'
+: action_dict:
+    ? &act1 !!python/tuple
+    - "N"
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - D
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    last_reward: -1.0
+    number: 1
+    total_reward: -2.0
+  id: 1
+? !!python/tuple
+- "There is an association between A and F;There is an association between A and B;There is an association between B and G;There is an association between B and C;There is an association between C and D;There is an association between D and I;There is an association between D and E;There is an association between E and J;There is an association between F and K;There is an association between F and G;There is an association between G and L;There is an association between I and N;There is an association between I and J;There is an association between J and O;There is an association between K and P;There is an association between K and L;There is an association between L and Q;There is an association between L and M;There is an association between M and R;There is an association between M and N;There is an association between N and S;There is an association between N and O;There is an association between O and T;There is an association between P and U;There is an association between P and Q;There is an association between Q and V;There is an association between Q and R;There is an association between R and S;There is an association between S and X;There is an association between S and T;There is an association between U and V;
+
+Currently at N, aiming for M"
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'I
+
+  M
+
+  S
+
+  O'
+: action_dict:
+    ? &act2 !!python/tuple
+    - M
+    - "Directly reached the target node."
+    : number: 1
+      qvalue: 10.0
+      reward: 30.0
+    ? !!python/tuple
+    - O
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    - *act1
+    last_reward: 30.0
+    number: 1
+    total_reward: 28.0
+  id: 2

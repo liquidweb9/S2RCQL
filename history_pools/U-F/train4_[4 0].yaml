@@ -1,0 +1,573 @@
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at A, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'F
+
+  B
+
+  None
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - F
+    - Because this node is the target node, and I should reach it
+    : number: 96
+      qvalue: 59.21451736807549
+      reward: 14.5
+    ? !!python/tuple
+    - F
+    - Because this node is the target node, and I should reach it.
+    : number: 24
+      qvalue: 50.32918453216553
+      reward: 14.500000000000002
+  id: 7
+  other_info:
+    action_history:
+    - &id001 !!python/tuple
+      - D
+      - Choosing D brings me closer to the starting point A, from which I can reach
+        the target F.
+    - &id002 !!python/tuple
+      - C
+      - Choosing C will bring me closer to the target node F. Although F is not directly
+        reachable from D, moving to C brings me one step closer to A or B, which are
+        connected to F. This action aligns with the principle of aiming for the shortest
+        possible path to the target.
+    - &id003 !!python/tuple
+      - B
+      - Choosing B will bring me closer to the target node F since B is directly connected
+        to A, which is the only node that can reach F. Although D is also an available
+        action, it does not lead directly to A or F and may result in a longer path.
+    - !!python/tuple
+      - A
+      - Because this node is directly connected to the target node F, and reaching
+        it will be the shortest possible path.
+    last_reward: -1.0
+    number: 120
+    total_reward: -7.033333333333332
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at B, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'A
+
+  C
+
+  None
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - A
+    - Because this node is directly connected to the target node F, and reaching it
+      will be the shortest possible path.
+    : number: 60
+      qvalue: 53.874901601786924
+      reward: -1.0
+  id: 6
+  other_info:
+    action_history:
+    - *id001
+    - *id002
+    - *id003
+    last_reward: -1.0
+    number: 60
+    total_reward: -6.033333333333331
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at C, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'B
+
+  D
+
+  None
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - B
+    - Choosing B will bring me closer to the target node F since B is directly connected
+      to A, which is the only node that can reach F. Although D is also an available
+      action, it does not lead directly to A or F and may result in a longer path.
+    : number: 60
+      qvalue: 43.82317519782145
+      reward: -1.0
+  id: 5
+  other_info:
+    action_history:
+    - *id001
+    - *id002
+    last_reward: -1.0
+    number: 60
+    total_reward: -5.033333333333333
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at D, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'C
+
+  I
+
+  E
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - C
+    - Although the target node F is not directly reachable from D, moving to C brings
+      me one step closer to A or B, which are connected to F. This action aligns with
+      the principle of aiming for the shortest possible path to the target.
+    : number: 10
+      qvalue: 15.071430458740409
+      reward: -1.0
+    ? !!python/tuple
+    - C
+    - Although the target node F is not directly reachable from D, moving to C brings
+      me one step closer to A, which is connected to F. This action is encouraged
+      because it aligns with the principle of aiming for the shortest possible path
+      to the target.
+    : number: 3
+      qvalue: -1.8333333333333333
+      reward: -1.0
+    ? !!python/tuple
+    - C
+    - Choosing C will bring me closer to the target node F. Although F is not directly
+      reachable from D, moving to C brings me one step closer to A or B, which are
+      connected to F. This action aligns with the principle of aiming for the shortest
+      possible path to the target.
+    : number: 47
+      qvalue: 36.32544422915568
+      reward: -1.0
+  id: 4
+  other_info:
+    action_history:
+    - *id001
+    last_reward: -1.0
+    number: 60
+    total_reward: -4.033333333333332
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at I, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'D
+
+  N
+
+  J
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - D
+    - Choosing D brings me closer to the starting point A, from which I can reach
+      the target F.
+    : number: 60
+      qvalue: 24.720851600400266
+      reward: -1.0
+    ? &id004 !!python/tuple
+    - N
+    - Although the target node F is not directly reachable from I, moving to N brings
+      me closer to M, which is connected to L and Q. This action aligns with the principle
+      of aiming for the shortest possible path to the target by exploring nodes that
+      might lead to a more direct route.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  id: 3
+  other_info:
+    action_history: []
+    last_reward: -0.6721311475409837
+    number: 61
+    total_reward: -2.983606557377048
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at N, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'I
+
+  M
+
+  S
+
+  O'
+: action_dict:
+    ? !!python/tuple
+    - I
+    - Choosing I brings me closer to D, which is connected to C. Although F is not
+      directly reachable from any of these nodes, exploring them might lead to a more
+      direct route to the target. Additionally, among the available actions, I appears
+      to be the most promising based on the network structure.
+    : number: 3
+      qvalue: 23.36107736624317
+      reward: -1.0
+    ? !!python/tuple
+    - I
+    - Moving to I brings me closer to D, which is connected to C and E. Although F
+      is not directly reachable from any of these nodes, exploring them might lead
+      to a more direct route to the target.
+    : number: 1
+      qvalue: -1.5868055555555558
+      reward: -1.0
+    ? !!python/tuple
+    - I
+    - Moving to I brings me closer to D, which is connected to C and E. Although F
+      is not directly reachable from any of these nodes, exploring them might lead
+      to a more direct route to the target. Additionally, the Q-value estimate for
+      this action is higher than the alternatives, indicating a higher chance of success.
+    : number: 10
+      qvalue: 13.008778380696839
+      reward: -1.0
+    ? !!python/tuple
+    - I
+    - Moving to I brings me closer to D, which is connected to C. Although F is not
+      directly reachable from any of these nodes, exploring them might lead to a more
+      direct route to the target. Additionally, among the available actions, I appears
+      to be the most promising based on the network structure.
+    : number: 27
+      qvalue: 19.83387525293973
+      reward: -1.0
+  id: 8
+  other_info:
+    action_history:
+    - *id004
+    last_reward: -1.0
+    number: 41
+    total_reward: -3.4390243902439033
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at S, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'N
+
+  R
+
+  X
+
+  T'
+: action_dict:
+    ? !!python/tuple
+    - N
+    - Moving to N provides an opportunity to explore nodes I and J, which are connected
+      to D and E. Although F is not directly reachable from these nodes, they might
+      lead to a more direct route to the target F in the future.
+    : number: 40
+      qvalue: 15.188982249241526
+      reward: -1.0
+  id: 10
+  other_info:
+    action_history:
+    - &id006 !!python/tuple
+      - S
+      - Moving to S provides an opportunity to explore nodes that might lead to a
+        more direct route to the target F in the future, even though F is not directly
+        reachable from S.
+    last_reward: -1.0
+    number: 40
+    total_reward: -2.4999999999999996
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at U, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'P
+
+  V
+
+  None
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - V
+    - Moving to V provides an opportunity to explore nodes that might lead to a more
+      direct route to the target F in the future, as V is connected to W, which is
+      part of a longer path leading to F. Although F is not directly reachable from
+      V, this action could potentially bring me closer to the target.
+    : number: 20
+      qvalue: 7.911980741871163
+      reward: -1.0
+  id: 11
+  other_info:
+    action_history: []
+    last_reward: 0.0
+    number: 20
+    total_reward: 0.0
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at V, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'Q
+
+  U
+
+  W
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - W
+    - Moving to W provides an opportunity to explore nodes that might lead to a more
+      direct route to the target F in the future, as W is connected to X, which is
+      part of a longer path leading to F. Although F is not directly reachable from
+      W, this action could potentially bring me closer to the target.
+    : number: 20
+      qvalue: 9.466402549726462
+      reward: -1.0
+  id: 12
+  other_info:
+    action_history:
+    - &id005 !!python/tuple
+      - V
+      - Moving to V provides an opportunity to explore nodes that might lead to a
+        more direct route to the target F in the future, as V is connected to W, which
+        is part of a longer path leading to F. Although F is not directly reachable
+        from V, this action could potentially bring me closer to the target.
+    last_reward: -1.0
+    number: 20
+    total_reward: -1.0
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at W, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'R
+
+  V
+
+  X
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - X
+    - Moving to X provides an opportunity to explore nodes that might lead to a more
+      direct route to the target F in the future, as X is connected to Y, which is
+      part of a longer path leading to F. Although F is not directly reachable from
+      X, this action could potentially bring me closer to the target.
+    : number: 20
+      qvalue: 10.855660626329856
+      reward: -1.0
+  id: 13
+  other_info:
+    action_history:
+    - *id005
+    - !!python/tuple
+      - W
+      - Moving to W provides an opportunity to explore nodes that might lead to a
+        more direct route to the target F in the future, as W is connected to X, which
+        is part of a longer path leading to F. Although F is not directly reachable
+        from W, this action could potentially bring me closer to the target.
+    last_reward: -1.0
+    number: 20
+    total_reward: -2.0
+? !!python/tuple
+- "(A, F); (A, B); (B, C); (C, D); (D, I); (D, E); (E, J); (I, N); (I, J); (J, O);\
+  \ (L, Q); (L, M); (M, R); (M, N); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, V);\
+  \ (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (U, V); (V, W); (W, X); (X, Y);\
+  \ \nCurrently at X, aiming for F."
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'S
+
+  W
+
+  Y
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - S
+    - Moving to S brings me closer to N, which is connected to I. Although F is not
+      directly reachable from any of these nodes, exploring them might lead to a more
+      direct route to the target.
+    : number: 19
+      qvalue: 6.855266503514857
+      reward: -1.0
+    *id006:
+      number: 21
+      qvalue: 12.641003081732707
+      reward: -1.0
+  id: 9
+  other_info:
+    action_history: []
+    last_reward: -0.5
+    number: 40
+    total_reward: -1.4999999999999996
+? !!python/tuple
+- '(A, F); (A, B); (B, G); (B, C); (C, H); (C, D); (D, I); (D, E); (F, K); (F, G);
+  (G, L); (G, H); (H, I); (I, N); (K, P); (K, L); (L, Q); (N, S); (N, O); (O, T);
+  (P, U); (P, Q); (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (W, X); (X, Y);
+
+  Currently at Q, aiming for L.'
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'L
+
+  P
+
+  R
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - L
+    - Directly reached the target node.
+    : number: 1
+      qvalue: 10.0
+      reward: 30.0
+    ? !!python/tuple
+    - P
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  id: 2
+  other_info:
+    action_history:
+    - &id008 !!python/tuple
+      - R
+      - Get me closer to my target location.
+    - &id007 !!python/tuple
+      - Q
+      - Get me closer to my target location.
+    last_reward: 30.0
+    number: 1
+    total_reward: 28.0
+? !!python/tuple
+- '(A, F); (A, B); (B, G); (B, C); (C, H); (C, D); (D, I); (D, E); (F, K); (F, G);
+  (G, L); (G, H); (H, I); (I, N); (K, P); (K, L); (L, Q); (N, S); (N, O); (O, T);
+  (P, U); (P, Q); (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (W, X); (X, Y);
+
+  Currently at R, aiming for L.'
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'Q
+
+  W
+
+  S
+
+  None'
+: action_dict:
+    ? !!python/tuple
+    - None
+    - Nothing happened, chose to go to a non-existent node.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+    *id007:
+      number: 1
+      qvalue: 1.0
+      reward: -1.0
+  id: 1
+  other_info:
+    action_history:
+    - *id008
+    last_reward: -1.0
+    number: 1
+    total_reward: -2.0
+? !!python/tuple
+- '(A, F); (A, B); (B, G); (B, C); (C, H); (C, D); (D, I); (D, E); (F, K); (F, G);
+  (G, L); (G, H); (H, I); (I, N); (K, P); (K, L); (L, Q); (N, S); (N, O); (O, T);
+  (P, U); (P, Q); (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (W, X); (X, Y);
+
+  Currently at S, aiming for L.'
+- 'Instruction:
+
+  I''m now in a 5*5 Maze. There are some obstacles whose positions are known in this
+  Maze. You need to continue exploring from the current position until you finally
+  find the target position.'
+- 'N
+
+  R
+
+  X
+
+  T'
+: action_dict:
+    *id008:
+      number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - T
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  id: 0
+  other_info:
+    action_history: []
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0

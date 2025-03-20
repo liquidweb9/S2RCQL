@@ -1,0 +1,1 @@
+You are in a 7 by 7 world. There are obstacles that you have to avoid at: (4, 1), (6, 1), (2, 2), (0, 1), (5, 0), (4, 3) and (3, 3). Go from (4, 0) to (4, 5).

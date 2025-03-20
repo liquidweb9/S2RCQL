@@ -1,0 +1,96 @@
+? !!python/tuple
+- "(A, F); (A, B); (B, G); (B, C); (C, H); (C, D); (D, I); (D, E); (F, K); (F, G); (G, L); (G, H); (H, I); (I, N); (K, P); (K, L); (L, Q); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (W, X); (X, Y);
+
+Currently at S, aiming for L."
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'N
+
+  R
+
+  X
+
+  T'
+: action_dict:
+    ? &act0 !!python/tuple
+    - R
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - T
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history: []
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0
+  id: 0
+? !!python/tuple
+- "(A, F); (A, B); (B, G); (B, C); (C, H); (C, D); (D, I); (D, E); (F, K); (F, G); (G, L); (G, H); (H, I); (I, N); (K, P); (K, L); (L, Q); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (W, X); (X, Y);
+
+Currently at R, aiming for L."
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'Q
+
+  W
+
+  S
+
+  None'
+: action_dict:
+    ? &act1 !!python/tuple
+    - "Q"
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - "None"
+    - Nothing happened, chose to go to a non-existent node.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    last_reward: -1.0
+    number: 1
+    total_reward: -2.0
+  id: 1
+? !!python/tuple
+- "(A, F); (A, B); (B, G); (B, C); (C, H); (C, D); (D, I); (D, E); (F, K); (F, G); (G, L); (G, H); (H, I); (I, N); (K, P); (K, L); (L, Q); (N, S); (N, O); (O, T); (P, U); (P, Q); (Q, R); (R, W); (R, S); (S, X); (S, T); (T, Y); (W, X); (X, Y);
+
+Currently at Q, aiming for L."
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'L
+
+  P
+
+  R
+
+  None'
+: action_dict:
+    ? &act2 !!python/tuple
+    - L
+    - "Directly reached the target node."
+    : number: 1
+      qvalue: 10.0
+      reward: 30.0
+    ? !!python/tuple
+    - P
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    - *act1
+    last_reward: 30.0
+    number: 1
+    total_reward: 28.0
+  id: 2

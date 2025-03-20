@@ -1,0 +1,26 @@
+---
+Last 5 Actions:
+
+Observation: |
+  
+  Instruction:
+  I'm now in a 5*5 Maze. There are some obstacles whose locations are unknown in this Maze. You need to continue exploring from the current location (0, 3) until you finally find the target location (3 ,4).
+  [turn up]
+  The current position is: (1, 3), the target position is: (3, 4).There are no obstacles at the current position.
+  [turn right]
+  The current position is: (0, 4), the target position is: (3, 4).There is an obstacles at the current position.
+  [turn down]
+  Nothing happened, because I have reached the end of the maze.
+  The current position is: (0, 3), the target position is: (3, 4).There are no obstacles at the current position.
+  [turn left]
+  The current position is: (0, 2), the target position is: (3, 4).There are no obstacles at the current position.
+Available Actions:
+- [turn up]
+- [turn right]
+- [turn down]
+- [turn left]
+
+Encouraged:
+turn up -> 1.0 get me closer to my target location.
+Discouraged:
+turn right -> -1.0 there is an obstacle here, which cannot be walked

@@ -1,0 +1,96 @@
+? !!python/tuple
+- "(U0, U5); (U0, U1); (U1, U6); (U1, U2); (U2, U7); (U4, U9); (U5, U6); (U6, U7); (U7, U12); (U7, U8); (U8, U13); (U8, U9); (U9, U14); (U12, U17); (U12, U13); (U13, U14); (U14, U19); (U15, U20); (U17, U22); (U19, U24); (U20, U21); (U21, U22); (U22, U23); (U23, U24);
+
+Currently at U2, aiming for U13."
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'U1
+
+  U7
+
+  None
+
+  None'
+: action_dict:
+    ? &act0 !!python/tuple
+    - U7
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - u1
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history: []
+    last_reward: 0.0
+    number: 1
+    total_reward: 0.0
+  id: 0
+? !!python/tuple
+- "(U0, U5); (U0, U1); (U1, U6); (U1, U2); (U2, U7); (U4, U9); (U5, U6); (U6, U7); (U7, U12); (U7, U8); (U8, U13); (U8, U9); (U9, U14); (U12, U17); (U12, U13); (U13, U14); (U14, U19); (U15, U20); (U17, U22); (U19, U24); (U20, U21); (U21, U22); (U22, U23); (U23, U24);
+
+Currently at U7, aiming for U13."
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'U2
+
+  U6
+
+  U12
+
+  U8'
+: action_dict:
+    ? &act1 !!python/tuple
+    - "U12"
+    - Get me closer to my target location.
+    : number: 1
+      qvalue: 1.0
+      reward: -1.0
+    ? !!python/tuple
+    - U2
+    - Keep me away from the target location.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    last_reward: -1.0
+    number: 1
+    total_reward: -2.0
+  id: 1
+? !!python/tuple
+- "(U0, U5); (U0, U1); (U1, U6); (U1, U2); (U2, U7); (U4, U9); (U5, U6); (U6, U7); (U7, U12); (U7, U8); (U8, U13); (U8, U9); (U9, U14); (U12, U17); (U12, U13); (U13, U14); (U14, U19); (U15, U20); (U17, U22); (U19, U24); (U20, U21); (U21, U22); (U22, U23); (U23, U24);
+
+Currently at U12, aiming for U13."
+- "Instruction:\nI'm now in a 5*5 Maze. There are some obstacles whose positions are known in this Maze. You need to continue exploring from the current position until you finally find the target position."
+- 'U7
+
+  U17
+
+  U13
+
+  None'
+: action_dict:
+    ? &act2 !!python/tuple
+    - U13
+    - "Directly reached the target node."
+    : number: 1
+      qvalue: 10.0
+      reward: 30.0
+    ? !!python/tuple
+    - "None"
+    - Nothing happened, chose to go to a non-existent node.
+    : number: 1
+      qvalue: -1.0
+      reward: -1.0
+  other_info:
+    action_history:
+    - *act0
+    - *act1
+    last_reward: 30.0
+    number: 1
+    total_reward: 28.0
+  id: 2
